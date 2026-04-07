@@ -38,20 +38,26 @@ jobs:
 
     steps:
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | /Applications/Docker.app/Contents/Resources/bin/docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        run: |
+          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Pull latest Docker image
-        run: /Applications/Docker.app/Contents/Resources/bin/docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
+        run: |
+          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
 
       - name: Stop and remove existing container (if exists)
         run: |
-          /Applications/Docker.app/Contents/Resources/bin/docker stop ootd-app || true
-          /Applications/Docker.app/Contents/Resources/bin/docker rm ootd-app || true
+          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          docker stop ootd-app || true
+          docker rm ootd-app || true
 
       - name: Run new container
         run: |
-          /Applications/Docker.app/Contents/Resources/bin/docker run -d \
+          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          docker run -d \
             --name ootd-app \
             -p 8000:8000 \
             --restart unless-stopped \
-            ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest 
+            ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
