@@ -30,6 +30,7 @@ jobs:
           push: true
           # 저장소 이름은 'ootd-color-analyzer'로 가정합니다.
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
+          no-cache: true
 
   deploy:
     needs: build
