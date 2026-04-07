@@ -31,31 +31,27 @@ jobs:
           # 저장소 이름은 'ootd-color-analyzer'로 가정합니다.
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
           no-cache: true
-
+          
   deploy:
     needs: build
-    runs-on: self-hosted  # 로컬 Mac에 등록한 런너에서 실행됩니다.
+    runs-on: self-hosted
 
     steps:
       - name: Log in to Docker Hub
-        # private 이미지일 경우를 위해 pull 전 로그인을 수행합니다.
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | /Applications/Docker.app/Contents/Resources/bin/docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Pull latest Docker image
-        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
+        run: /Applications/Docker.app/Contents/Resources/bin/docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
 
       - name: Stop and remove existing container (if exists)
         run: |
-          docker stop ootd-app || true
-          docker rm ootd-app || true
+          /Applications/Docker.app/Contents/Resources/bin/docker stop ootd-app || true
+          /Applications/Docker.app/Contents/Resources/bin/docker rm ootd-app || true
 
       - name: Run new container
         run: |
-          docker run -d \
+          /Applications/Docker.app/Contents/Resources/bin/docker run -d \
             --name ootd-app \
             -p 8000:8000 \
             --restart unless-stopped \
-            ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest 
