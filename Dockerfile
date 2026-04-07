@@ -1,24 +1,25 @@
-# 파이썬 경량화 이미지를 베이스로 사용합니다.
-FROM python:3.11-slim
+# 1. 베이스 이미지 설정 (파이썬 3.12 사용)
+FROM python:3.12-slim
 
-# 작업 디렉토리 설정
-WORKDIR /app
-
-# OpenCV 동작에 필요한 시스템 패키지 설치 및 캐시 지우기 (최적화)
-RUN apt-get update && apt-get install -y \
+# 2. 필수 시스템 패키지 설치 (에러 났던 부분 수정)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     libgl1-mesa-glx \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 종속성 파일 먼저 복사 (Docker 빌드 캐시 최적화)
+# 3. 작업 디렉토리 설정
+WORKDIR /app
+
+# 4. 의존성 파일 복사 및 설치
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 애플리케이션 코드 복사
+# 5. 소스 코드 및 템플릿 복사
 COPY . .
 
-# 포트 노출
+# 6. 포트 설정 및 실행
 EXPOSE 8000
-
-# FastAPI 실행
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
