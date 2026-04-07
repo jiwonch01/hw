@@ -1,8 +1,9 @@
-# 1. 안정적인 베이스 이미지 사용
+# 1. 안정적인 베이스 이미지
 FROM python:3.12-slim
 
-# 2. 필수 라이브러리 설치 (강제 갱신을 위해 구조를 살짝 변경)
-RUN apt-get update -y && \
+# 2. 패키지 설치 (에러 방지를 위해 미러 서버 변경 및 재시도 설정 추가)
+RUN sed -i 's/deb.debian.org/ftp.kr.debian.org/g' /etc/apt/sources.list.d/debian.sources && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     libgl1-mesa-glx \
