@@ -1,19 +1,13 @@
-# 1. 안정적인 베이스 이미지
-FROM python:3.12-slim
+# 1. 파이썬 기본 이미지 (slim 대신 일반 버전 사용해서 설치 오류 방지)
+FROM python:3.12
 
-# 2. 패키지 설치 (에러 방지를 위해 미러 서버 변경 및 재시도 설정 추가)
-RUN sed -i 's/deb.debian.org/ftp.kr.debian.org/g' /etc/apt/sources.list.d/debian.sources && \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    libglib2.0-0 \
+# 2. 필수 라이브러리 설치 (가장 단순하고 확실한 방법)
+RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
-    libsm6 \
-    libxext6 \
-    libxrender-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
-# 3. 작업 디렉토리
+# 3. 작업 디렉토리 설정
 WORKDIR /app
 
 # 4. 의존성 설치
@@ -21,9 +15,9 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# 5. 소스 복사
+# 5. 소스 코드 복사
 COPY . .
 
-# 6. 실행
+# 6. 실행 설정
 EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
