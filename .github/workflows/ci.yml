@@ -31,33 +31,27 @@ jobs:
           # 저장소 이름은 'ootd-color-analyzer'로 가정합니다.
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
           no-cache: true
-          
   deploy:
     needs: build
     runs-on: self-hosted
 
     steps:
       - name: Log in to Docker Hub
-        run: |
-          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Pull latest Docker image
-        run: |
-          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
+        run: docker pull --platform linux/amd64 ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
 
-      - name: Stop and remove existing container (if exists)
+      - name: Stop and remove existing container
         run: |
-          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
           docker stop ootd-app || true
           docker rm ootd-app || true
 
       - name: Run new container
         run: |
-          export PATH="/Users/choejiwon/.docker/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
           docker run -d \
             --name ootd-app \
+            --platform linux/amd64 \
             -p 8000:8000 \
             --restart unless-stopped \
             ${{ secrets.DOCKERHUB_USERNAME }}/ootd-color-analyzer:latest
