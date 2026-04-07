@@ -1,28 +1,20 @@
-# 1. 베이스 이미지를 조금 더 넉넉한 버전으로 변경
+# 1. 'slim'이 아닌 일반 python:3.12 사용 (이미 필요한 도구들이 많이 들어있음)
 FROM python:3.12
 
-# 2. 환경 변수 설정 (설치 중 묻는 말에 답하지 않음)
-ENV DEBIAN_FRONTEND=noninteractive
+# 2. 에러가 계속 나는 apt-get install 과정을 아예 삭제했습니다.
+# 일반 python 이미지에는 필요한 기본 라이브러리가 포함되어 있어 바로 설치가 가능할 수 있습니다.
 
-# 3. 시스템 패키지 설치 (에러 방지를 위해 하나씩 설치 및 업데이트 강화)
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# 4. 작업 디렉토리 설정
+# 3. 작업 디렉토리 설정
 WORKDIR /app
 
-# 5. 필요한 파일 복사 및 설치
+# 4. 의존성 설치
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# 6. 전체 코드 복사
+# 5. 전체 코드 복사
 COPY . .
 
-# 7. 실행
+# 6. 실행 설정
 EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
